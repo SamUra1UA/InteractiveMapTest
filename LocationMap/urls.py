@@ -22,6 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('locations/', include('locations.urls')),
+    path('api/', include('api.urls')),
     path('', views.map_view, name='location-map'),
 ]
 

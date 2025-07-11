@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'accounts',
     'locations',
     'captcha',
+    'api',
 ]
 
 MIDDLEWARE = [
