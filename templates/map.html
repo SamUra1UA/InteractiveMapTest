@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Мапа локацій{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Мапа популярності локацій</h2>
+  <div id="map" style="height: 600px;"></div>
+    {% if user.is_authenticated %}
+  <div class="text-end mb-3">
+    <a href="{% url 'add-location' %}" class="btn btn-success">Додати локацію</a>
+  </div>
+{% endif %}
+</div>
+
+<!-- Leaflet.js CDN -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+  const map = L.map('map').setView([49.8397, 24.0297], 13);  // Львів
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+  
+  // Завантаження локацій з API
+fetch("{% url 'location-list' %}")
+  .then(res => res.json())
+  .then(data => {
+    data.forEach(loc => {
+      const avg = Math.round(loc.average_rating || 0);
+      const stars = '★'.repeat(avg) + '☆'.repeat(5 - avg);
+
+      const marker = L.marker([loc.latitude, loc.longitude]).addTo(map);
+      marker.bindPopup(`
+        <b>${loc.name}</b><br>
+        ${loc.description || '—'}<br>
+        Рейтинг: ${stars} (${loc.average_rating ?? 0}/5)<br>
+        <a href="/locations/${loc.id}/" class="btn btn-sm btn-primary mt-2">Детальніше</a>
+      `);
+    });
+  });
+
+
+</script>
+    
+    <style>
+  .leaflet-popup-content {
+    font-size: 14px;
+  }
+  .leaflet-popup-content b {
+    font-size: 16px;
+  }
+</style>
+
+{% endblock %}

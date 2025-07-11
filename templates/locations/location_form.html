@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Додати локацію</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.name.label_tag }} {{ form.name }}
+    {{ form.description.label_tag }} {{ form.description }}
+    {{ form.category.label_tag }} {{ form.category }}
+
+    <div id="map" style="height: 400px;" class="mb-3 mt-3"></div>
+
+    {{ form.latitude }}
+    {{ form.longitude }}
+
+    <button type="submit" class="btn btn-success">Зберегти</button>
+  </form>
+</div>
+
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+  const map = L.map('map').setView([49.8397, 24.0297], 13); // Центр — Львів
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+  let marker;
+
+  map.on('click', function (e) {
+    const lat = e.latlng.lat.toFixed(6);
+    const lng = e.latlng.lng.toFixed(6);
+    if (marker) {
+      marker.setLatLng(e.latlng);
+    } else {
+      marker = L.marker(e.latlng).addTo(map);
+    }
+
+    document.getElementById("id_latitude").value = lat;
+    document.getElementById("id_longitude").value = lng;
+  });
+</script>
+{% endblock %}
