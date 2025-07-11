@@ -1,17 +1,8 @@
 from django.urls import path, include
-from django.views.generic import TemplateView, RedirectView
-from rest_framework.routers import DefaultRouter
-
 from . import views
-from captcha.fields import CaptchaField
-
-from .views import LocationViewSet
-
-router = DefaultRouter()
-router.register(r'locations', LocationViewSet, basename='location')
+from .views import autocomplete_locations
 
 urlpatterns = [
-    path('api/', include(router.urls)),
     path('map/', views.map_view, name='location-map'),
     path('export/json/', views.export_locations_json, name='export_json'),
     path('export/csv/', views.export_locations_csv, name='export_csv'),
@@ -23,6 +14,6 @@ urlpatterns = [
     path('captcha/', include('captcha.urls')),
     path('<int:pk>/edit/', views.edit_location_view, name='edit-location'),
     path('<int:pk>/delete/', views.delete_location_view, name='delete-location'),
-
+    path('autocomplete/', autocomplete_locations, name='autocomplete'),
 
 ]

@@ -9,10 +9,9 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import LocationForm
 from .forms import ReviewForm
-from django.http import JsonResponse
 from .models import Review
 from django.views.decorators.http import require_POST
-
+from django.db.models import Q
 
 class LocationViewSet(viewsets.ModelViewSet):
     queryset = Location.objects.all()
@@ -52,6 +51,17 @@ def create_location_view(request):
         form = LocationForm()
     return render(request, 'locations/location_form.html', {'form': form})
 
+
+
+def autocomplete_locations(request):
+    query = request.GET.get('q', '')
+    results = []
+
+    if query:
+        locations = Location.objects.filter(Q(name__icontains=query) | Q(description__icontains=query))[:5]
+        results = [{'id': loc.id, 'name': loc.name} for loc in locations]
+
+    return JsonResponse({'results': results})
 
 
 def location_detail_view(request, pk):

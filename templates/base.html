@@ -11,33 +11,46 @@
   {% block extra_head %}{% endblock %}
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="/">Головна</a>
-      <div class="collapse navbar-collapse">
-        <ul class="navbar-nav ms-auto">
-          {% if user.is_authenticated %}
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'profile' %}">Профіль</a>
-            </li>
-            <li class="nav-item">
-              <form method="post" action="{% url 'logout' %}">
-                  {% csrf_token %}
-                  <button class="nav-link" type="submit">Вийти</button>
-                </form>
-            </li>
-          {% else %}
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">Увійти</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'register' %}">Реєстрація</a>
-            </li>
-          {% endif %}
-        </ul>
-      </div>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">Головна</a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto me-3">
+        {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'profile' %}">Профіль</a>
+          </li>
+          <li class="nav-item">
+            <form method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button class="nav-link btn btn-link p-0 m-0" type="submit">Вийти</button>
+            </form>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'login' %}">Увійти</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'register' %}">Реєстрація</a>
+          </li>
+        {% endif %}
+      </ul>
+
+      <form class="d-flex position-relative" method="get" action="{% url 'location-map' %}">
+          <input class="form-control me-2" type="search" id="searchInput" name="q" placeholder="Пошук" autocomplete="off">
+          <button class="btn btn-outline-success" type="submit">Пошук</button>
+          <div id="autocompleteResults" class="list-group position-absolute w-100" style="z-index: 1000;"></div>
+        </form>
     </div>
-  </nav>
+  </div>
+</nav>
+
 
   <div class="container mt-4">
     {% if messages %}
@@ -55,6 +68,40 @@
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('searchInput');
+    const resultsContainer = document.getElementById('autocompleteResults');
+
+    searchInput.addEventListener('input', function () {
+        const query = searchInput.value;
+        if (query.length < 2) {
+            resultsContainer.innerHTML = '';
+            return;
+        }
+
+        fetch(`/locations/autocomplete/?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                resultsContainer.innerHTML = '';
+                data.results.forEach(item => {
+                    const link = document.createElement('a');
+                    link.href = `/locations/${item.id}/`;  // або твій правильний URL
+                    link.className = 'list-group-item list-group-item-action';
+                    link.textContent = item.name;
+                    resultsContainer.appendChild(link);
+                });
+            });
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target)) {
+            resultsContainer.innerHTML = '';
+        }
+    });
+});
+  </script>
+
   {% block extra_js %}{% endblock %}
 </body>
 </html>
