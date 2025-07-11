@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Видалити локацію{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Ви впевнені, що хочете видалити "{{ location.name }}"?</h2>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Так, видалити</button>
+    <a href="{% url 'location-detail' pk=location.pk %}" class="btn btn-secondary">Скасувати</a>
+  </form>
+</div>
+{% endblock %}
